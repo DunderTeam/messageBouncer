@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"github.com/mitchellh/mapstructure"
-	_ "github.com/mitchellh/mapstructure"
 	"log"
 	"net/http"
 	"time"
