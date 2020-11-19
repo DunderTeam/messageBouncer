@@ -69,11 +69,6 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 			// Create new msgCarrier and add to cache
 			Cache.Add(msg.Destination, carrier, 5 * time.Minute)
 		}
-
-
-		carrier = MessageCarrier{}
-
-
 		log.Print(carrier)
 
 		out := "Hello"
