@@ -23,7 +23,13 @@ type MessageCarrier struct {
 func HandleMessage(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		origin := r.Header.Get("X-REAL-IP")
+		/*
+			Todo: The get method currently has little to no security.
+			implement some sort of credential system to ensure the
+			right person is the only one who can fetch the message
+		 */
+		origin := r.Header.Get("X-REAL-IP") // Only returns messages directed to origin
+		// Susceptible to ip spoofing
 
 		msgInt, exists := Cache.Get(origin)
 		carrier := MessageCarrier{}
@@ -31,8 +37,15 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 
 		if exists {
 
-		} else {
+			w.Header().Set("Content-Type","application/json")
+			resp, _ := json.Marshal(carrier)
 
+			w.Write(resp)
+
+			Cache.Delete(origin)
+
+		} else {
+			// Todo: return a no messages for you message
 		}
 
 		break
@@ -64,7 +77,7 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 
 		break
 	default:
-		log.Print("Not valid format used")
+		log.Print("No valid method used")
 		break
 	}
 }
