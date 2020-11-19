@@ -28,7 +28,7 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 			implement some sort of credential system to ensure the
 			right person is the only one who can fetch the message
 		 */
-		origin := r.Header.Get("X-REAL-IP") // Only returns messages directed to origin
+		origin := GetIP(r) // Only returns messages directed to origin
 		// Susceptible to ip spoofing
 
 		log.Print("Origin is : " + origin)
@@ -59,7 +59,7 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 		_ = decoder.Decode(&msg)
 
 		carrier := MessageCarrier{}
-		msg.Origin = r.Header.Get("X-REAL-IP")
+		msg.Origin = GetIP(r)
 
 		msgCarrier, exists := Cache.Get(msg.Destination)
 		if exists {
@@ -84,4 +84,12 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 		log.Print("No valid method used")
 		break
 	}
+}
+
+func GetIP(r *http.Request) string {
+	forwarded := r.Header.Get("X-FORWARDED-FOR")
+	if forwarded != "" {
+		return forwarded
+	}
+	return r.RemoteAddr
 }
