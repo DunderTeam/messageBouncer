@@ -4,6 +4,7 @@ import (
 	"github.com/patrickmn/go-cache"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -13,7 +14,7 @@ func main() {
 
 	http.HandleFunc("/message", HandleMessage)
 
-	err := http.ListenAndServe(":$PORT", nil)
+	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	if err != nil {
 		log.Fatal("Server not running", err)
 		return
