@@ -31,6 +31,8 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("X-REAL-IP") // Only returns messages directed to origin
 		// Susceptible to ip spoofing
 
+		log.Print("Origin is : " + origin)
+
 		msgInt, exists := Cache.Get(origin)
 		carrier := MessageCarrier{}
 		mapstructure.Decode(msgInt, &carrier)
