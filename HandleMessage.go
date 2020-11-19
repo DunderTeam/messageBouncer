@@ -44,6 +44,8 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 
 			Cache.Delete(origin)
 
+			log.Print("You requested your messages")
+
 		} else {
 			// Todo: return a no messages for you message
 		}
@@ -68,12 +70,17 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 			Cache.Add(msg.Destination, carrier, 5 * time.Minute)
 		}
 
-		log.Print(msgCarrier)
 
 		carrier = MessageCarrier{}
 
 
-		log.Print(carrier.msg[0])
+		log.Print(carrier)
+
+		out := "Hello"
+
+
+
+		w.Write(([]byte)(out))
 
 		break
 	default:
