@@ -13,7 +13,7 @@ func main() {
 
 	http.HandleFunc("/message", HandleMessage)
 
-	err := http.ListenAndServe("localhost:8080", nil)
+	err := http.ListenAndServe("localhost:80", nil)
 	if err != nil {
 		log.Fatal("Server not running", err)
 		return
