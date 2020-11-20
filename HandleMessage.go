@@ -16,10 +16,6 @@ type Message struct {
 	Origin 		string `json:"origin"`
 }
 
-type MessageCarrier struct {
-	msg []Message
-}
-
 func HandleMessage(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -31,16 +27,18 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 		origin := GetIP(r) // Only returns messages directed to origin
 		// Susceptible to ip spoofing
 
+		msgInterface, exists := Cache.Get(origin)
 		log.Print("Origin is : " + origin)
+		var msgArray []Message
 
-		msgInt, exists := Cache.Get(origin)
-		carrier := MessageCarrier{}
-		mapstructure.Decode(msgInt, &carrier)
+		mapstructure.Decode(msgInterface, &msgArray)
 
 		if exists {
 
 			w.Header().Set("Content-Type","application/json")
-			resp, _ := json.Marshal(carrier)
+			resp, _ := json.Marshal(msgArray)
+
+			log.Print(msgArray)
 
 			w.Write(resp)
 
@@ -58,22 +56,24 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		_ = decoder.Decode(&msg)
 
-		carrier := MessageCarrier{}
 		msg.Origin = GetIP(r)
 
-		msgCarrier, exists := Cache.Get(msg.Destination)
+		msgInterface, exists := Cache.Get(msg.Destination)
+		var msgArray []Message
+
 		if exists {
 			// Add msg to msgCarrier and replace cache
-			mapstructure.Decode(msgCarrier, &carrier)
-			carrier.msg = append(carrier.msg, msg)
-			Cache.Replace(msg.Destination, carrier, 5*time.Minute) // Replace previous data, with new data
+			mapstructure.Decode(msgInterface, &msgArray)
+			msgArray = append(msgArray, msg)
+			Cache.Replace(msg.Destination, msgArray, 5*time.Minute) // Replace previous data, with new data
 		} else {
 			// Create new msgCarrier and add to cache
-			Cache.Add(msg.Destination, carrier, 5 * time.Minute)
+			msgArray = append(msgArray, msg)
+			Cache.Add(msg.Destination, msgArray, 5 * time.Minute)
 		}
-		log.Print(carrier)
+		log.Print(msgArray)
 
-		out := "Hello"
+		out := "200"
 
 
 
